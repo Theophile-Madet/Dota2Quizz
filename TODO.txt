@@ -1,0 +1,19 @@
+-Avoid generated answers going to negative values
+-Some question lead to infinite loops
+-Handle abilities with mana cost zero
+-Handle special ability :
+    -sf ult damage
+    -lich frost nova damage
+-Prevent neutral creep abilities to generate several values
+-Handle decimal values
+-Handle DOTs :
+    -Lone druid bear entangle
+    -skeleton_king_hellfire_blast
+-Automatically handle old abilities (example : keeper_of_the_light_spirit_form)
+-Handle spells with damage not in attribute AbilityDamage (apparently linked to talents):
+    -zeus arc lightning
+-Support more question types
+-Translate hero name and abilities
+-Formulate questions in nice phrases
+-Count score
+-Handle zero values for cast point
