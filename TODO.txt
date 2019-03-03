@@ -1,5 +1,4 @@
 -Avoid generated answers going to negative values
--Some question lead to infinite loops
 -Handle abilities with mana cost zero
 -Handle special ability :
     -sf ult damage
@@ -12,8 +11,13 @@
 -Automatically handle old abilities (example : keeper_of_the_light_spirit_form)
 -Handle spells with damage not in attribute AbilityDamage (apparently linked to talents):
     -zeus arc lightning
+    -CM nova
 -Support more question types
 -Translate hero name and abilities
 -Formulate questions in nice phrases
 -Count score
 -Handle zero values for cast point
+-Ask questions without giving answer (open answer)
+-Read files for game folder instead of manually copied
+    -> ask for dota directory
+-Provide patch info (say when this value was last changed)

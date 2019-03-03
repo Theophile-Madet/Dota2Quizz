@@ -1847,10 +1847,10 @@
             300
         ],
         "AbilityManaCost": [
-            105,
-            120,
-            140,
-            165
+            85,
+            110,
+            135,
+            160
         ],
         "name": "death_prophet_carrion_swarm"
     },
@@ -1871,7 +1871,7 @@
     },
     "death_prophet_silence": {
         "AbilityCastPoint": [
-            0.5
+            0.4
         ],
         "AbilityCastRange": [
             900
@@ -6722,6 +6722,9 @@
             400
         ],
         "AbilityCooldown": [
+            16,
+            14,
+            12,
             10
         ],
         "AbilityManaCost": [
@@ -7171,10 +7174,10 @@
     },
     "sniper_headshot": {
         "AbilityDamage": [
-            20,
-            50,
-            80,
-            110
+            30,
+            60,
+            90,
+            120
         ],
         "name": "sniper_headshot"
     },
@@ -7482,7 +7485,7 @@
             500
         ],
         "AbilityCooldown": [
-            10
+            8
         ],
         "AbilityManaCost": [
             120,
@@ -8410,7 +8413,10 @@
             5
         ],
         "AbilityManaCost": [
-            75
+            70,
+            80,
+            90,
+            100
         ],
         "name": "viper_nethertoxin"
     },
@@ -8741,10 +8747,10 @@
             800
         ],
         "AbilityCooldown": [
-            18,
             16,
             14,
-            12
+            12,
+            10
         ],
         "AbilityDamage": [
             0
