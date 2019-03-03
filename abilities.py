@@ -27,6 +27,7 @@ def get_and_save_all_abilities():
     json_string = json.dumps(all_abilities, indent=4)
     destination_file = open('abilities_valve_format.json', 'w+')
     destination_file.write(json_string)
+    destination_file.close()
 
     return all_abilities
 
@@ -69,9 +70,10 @@ def valve_to_custom_format(valve_abilities):
 
 
 def get_abilities_json():
-    source_file = open('D:\\SteamLibrary\\steamapps\\common\\dota 2 beta\\game\\dota\\scripts\\npc\\npc_abilities.txt',
+    source_file = open(theo_utils.get_dota_folder_path() + 'npc_abilities.txt',
                        'r')
     valve_string = source_file.read()
+    source_file.close()
     return theo_utils.valve_string_to_json_string(valve_string)
 
 

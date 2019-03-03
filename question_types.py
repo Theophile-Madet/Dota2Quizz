@@ -73,4 +73,8 @@ class QuestionType(Enum):
     # CREEP_CYCLE_UPGRADE_TIME = 67,
     # CREEP_CYCLE_UPGRADE_VALUE = 68,
     # CATAPULT_EVERY_X_WAVE = 69
+    # HERO_PROJECTILE_SPEED = 70 also : creep and summon and building projectile speed
+    # HERO_RING_RADIUS = 71
+    # HERO_VISION_RANGE = 72 also : creeps, sumons, buildings...
+
 

@@ -21,3 +21,4 @@
 -Read files for game folder instead of manually copied
     -> ask for dota directory
 -Provide patch info (say when this value was last changed)
+-Prevent cast point questions to generate multiple values

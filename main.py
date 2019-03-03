@@ -2,6 +2,7 @@ import json
 import random
 import time
 import abilities
+import heroes
 import theo_utils
 from question_types import QuestionType
 
@@ -9,6 +10,7 @@ from question_types import QuestionType
 def main():
     print('Welcome to Théo\'s Dota 2 Quizz!\n\n')
 
+    heroes_list = heroes.get_and_save_all_heroes()
     valve_abilities = abilities.get_and_save_all_abilities()
     all_abilities = abilities.valve_to_custom_format(valve_abilities)
     valid_abilities = abilities.get_valid_abilities(all_abilities)
