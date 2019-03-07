@@ -22,3 +22,4 @@
     -> ask for dota directory
 -Provide patch info (say when this value was last changed)
 -Prevent cast point questions to generate multiple values
+-Add comments after answering (median BAT, standard health regen..., X heroes have more, X heroes have less...)

@@ -76,5 +76,5 @@ class QuestionType(Enum):
     # HERO_PROJECTILE_SPEED = 70 also : creep and summon and building projectile speed
     # HERO_RING_RADIUS = 71
     # HERO_VISION_RANGE = 72 also : creeps, sumons, buildings...
-
+    # HERO_FISRT_NAME = 73
 
