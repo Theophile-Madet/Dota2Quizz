@@ -80,7 +80,7 @@ def get_abilities_json():
 def get_valid_abilities(all_abilities):
     exclude_list = ["Version", "ability_base", "dota_base_ability", "default_attack", "attribute_bonus",
                     "ability_deward", "generic_hidden", "consumable_hidden", "throw_snowball",
-                    "elder_titan_echo_stomp_spirit", "keeper_of_the_light_spirit_form", "keeper_of_the_light_recall"]
+                    "elder_titan_echo_stomp_spirit", "keeper_of_the_light_spirit_form", "keeper_of_the_light_recall", "shoot_firework"]
     exclude_substring = ["seasonal", "frostivus", "cny", "greevil", "courier", "roshan", "kobold", "centaur_khan",
                          "spawnlord", "special_bonus", "empty"]
     abilities_filtered = dict()

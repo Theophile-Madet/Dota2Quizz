@@ -4,11 +4,11 @@ import attributes
 import theo_utils
 
 
-def generate_wrong_answers(possible_abilities, attribute, ability_answer):
+def generate_wrong_answers(possible_abilities, attribute, ability_answer, allow_value_count_flip):
     wrong_answers = []
     tries = 0
     while len(wrong_answers) < 3:
-        potential_answer = generate_wrong_answer(possible_abilities, attribute, ability_answer)
+        potential_answer = generate_wrong_answer(possible_abilities, attribute, ability_answer, allow_value_count_flip)
         if potential_answer in wrong_answers or ability_answer[attribute] == potential_answer:
             tries += 1
             if tries > 100:
@@ -20,7 +20,7 @@ def generate_wrong_answers(possible_abilities, attribute, ability_answer):
     return wrong_answers
 
 
-def generate_wrong_answer(possible_abilities, attribute, ability_answer, allow_value_count_flip=True):
+def generate_wrong_answer(possible_abilities, attribute, ability_answer, allow_value_count_flip):
     value_source = random.choice(["generated"])
     # value_sources = random.choice(["from_other_ability", "generated"])
     # value_count = random.choice(["same", "different"])

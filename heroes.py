@@ -1,5 +1,7 @@
 import json
 import theo_utils
+import random
+from question_types import QuestionType
 
 
 def get_and_save_all_heroes():
@@ -48,8 +50,35 @@ def valve_format_to_custom_format(heroes_valve):
                     hero_custom[attribute] = heroes_valve["npc_dota_hero_base"][attribute]
                 else:
                     hero_custom[attribute] = base_values[attribute]
+                try:
+                    hero_custom[attribute] = float(hero_custom[attribute])
+                    if hero_custom[attribute].is_integer():
+                        hero_custom[attribute] = int(hero_custom[attribute])
+                except ValueError:
+                    pass
+                hero_custom[attribute] = [hero_custom[attribute]]
             heroes_custom[hero_name] = hero_custom
         except Exception as error:
             print("ERROR BY " + hero_name + "\n\t" + str(error))
 
     return heroes_custom
+
+
+def get_corresponding_attribute(question_type):
+    possible_stats = ["Strength", "Agility", "Intelligence"]
+
+    if question_type == QuestionType.HERO_STARTING_STATS:
+        stat = random.choice(possible_stats)
+        return "AttributeBase" + stat
+    elif question_type == QuestionType.HERO_STAT_GAIN:
+        stat = random.choice(possible_stats)
+        return "Attribute" + stat + "Gain"
+    elif question_type == QuestionType.HERO_TURN_RATE:
+        return "MovementTurnRate"
+    elif question_type == QuestionType.HERO_ATTACK_RANGE:
+        return "AttackRange"
+    elif question_type == QuestionType.HERO_VISION_RANGE:
+        possible_time = ["Day", "Night"]
+        return "Vision" + random.choice(possible_time) + "timeRange"
+    elif question_type == QuestionType.HERO_PROJECTILE_SPEED:
+        return "ProjectileSpeed"

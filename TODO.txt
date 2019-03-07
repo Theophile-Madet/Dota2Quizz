@@ -23,3 +23,7 @@
 -Provide patch info (say when this value was last changed)
 -Prevent cast point questions to generate multiple values
 -Add comments after answering (median BAT, standard health regen..., X heroes have more, X heroes have less...)
+-Instead of checking integer / not integer in generating values, try to keep the same rounding level (don't generate 2.55 from 2.4, or 281 from 280)
+-Reverse questions : which ability has mana cost XXX
+-Fixed answer range? example, 0.4 < x < 1.1 for turn rate
+-Ask lvl specific question : damage of dragon slave on lvl 3

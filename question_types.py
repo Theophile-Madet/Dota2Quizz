@@ -15,10 +15,10 @@ class QuestionType(Enum):
     # ABILITY_HEAL = 31,
     # ABILITY_SPECIAL = 37, #dazzle CDR, necro damage multiplier...
     # DEBUFF_IS_DISPELLABLE = 9,
-    # HERO_STARTING_STATS = 10,
-    # HERO_STAT_GAIN = 11,
-    # HERO_TURN_RATE = 12,
-    # HERO_ATTACK_RANGE = 13,
+    HERO_STARTING_STATS = 10,
+    HERO_STAT_GAIN = 11,
+    HERO_TURN_RATE = 12,
+    HERO_ATTACK_RANGE = 13,
     # HERO_ATTACK_DAMAGE_LVL1 = 14,
     # HERO_ARMOR_LVL1 = 15,
     # HERO_HP_LVL1 = 16,
@@ -73,8 +73,15 @@ class QuestionType(Enum):
     # CREEP_CYCLE_UPGRADE_TIME = 67,
     # CREEP_CYCLE_UPGRADE_VALUE = 68,
     # CATAPULT_EVERY_X_WAVE = 69
-    # HERO_PROJECTILE_SPEED = 70 also : creep and summon and building projectile speed
+    HERO_PROJECTILE_SPEED = 70
     # HERO_RING_RADIUS = 71
-    # HERO_VISION_RANGE = 72 also : creeps, sumons, buildings...
-    # HERO_FISRT_NAME = 73
+    HERO_VISION_RANGE = 72
+    # HERO_FIRST_NAME = 73
+    # CREEP_VISION_RANGE = 74
+    # BUILDING_VISION_RANGE = 75
+    # SUMMON_VISION_RANGE = 76
+    # CREEP_PROJECTILE_SPEED = 77
+    # SUMMON_PROJECTILE_SPEED = 78
+    # BUILDING_PROJECTILE_SPEED = 79
+
 

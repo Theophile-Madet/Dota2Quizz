@@ -11,7 +11,7 @@ def randfloat(a, b):
 
 
 def get_dota_folder_path():
-    return "D:\\SteamLibrary\\steamapps\\common\\dota 2 beta\\game\\dota\\scripts\\npc\\"
+    return "C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta\\game\\dota\\scripts\\npc\\"
 
 
 def valve_string_to_json_string(valve_string):
