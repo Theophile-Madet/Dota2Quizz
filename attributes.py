@@ -9,6 +9,26 @@ def attribute_allows_negative_upgrade(attribute):
         return True
 
 
+def attribute_allows_flip_multiple_of_5(attribute):
+    forbid_list = ["Custom_HpLvl1"]
+    if attribute in forbid_list:
+        return False
+    else:
+        return True
+
+
+def attribute_allows_value_count_flip(attribute):
+    forbid_list = ["Custom_HpLvl1", "Custom_ManaLvl1", "Custom_ArmorLvl1", "ProjectileSpeed", "VisionDaytimeRange",
+                   "VisionNighttimeRange", "AttackRange", "MovementTurnRate", "AttributeStrengthGain",
+                   "AttributeAgilityGain", "AttributeIntelligenceGain", "AttributeBaseStrength", "AttributeBaseAgility",
+                   "AttributeBaseIntelligence", "Custom_HpRegenLvl1", "Custom_ManaRegenLvl1",
+                   "Custom_MagicResistanceLvl1", "Custom_AttackDamageLvl1"]
+    if attribute in forbid_list:
+        return False
+    else:
+        return True
+
+
 def get_corresponding_attribute(question_type):
     if question_type == QuestionType.ABILITY_DAMAGE:
         return "AbilityDamage"

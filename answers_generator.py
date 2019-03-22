@@ -4,11 +4,11 @@ import attributes
 import theo_utils
 
 
-def generate_wrong_answers(possible_abilities, attribute, ability_answer, allow_value_count_flip):
+def generate_wrong_answers(possible_abilities, attribute, ability_answer):
     wrong_answers = []
     tries = 0
     while len(wrong_answers) < 3:
-        potential_answer = generate_wrong_answer(possible_abilities, attribute, ability_answer, allow_value_count_flip)
+        potential_answer = generate_wrong_answer(possible_abilities, attribute, ability_answer)
         if potential_answer in wrong_answers or ability_answer[attribute] == potential_answer:
             tries += 1
             if tries > 100:
@@ -20,15 +20,14 @@ def generate_wrong_answers(possible_abilities, attribute, ability_answer, allow_
     return wrong_answers
 
 
-def generate_wrong_answer(possible_abilities, attribute, ability_answer, allow_value_count_flip):
+def generate_wrong_answer(possible_abilities, attribute, ability_answer):
     value_source = random.choice(["generated"])
     # value_sources = random.choice(["from_other_ability", "generated"])
     # value_count = random.choice(["same", "different"])
 
     value = None
     if value_source == "generated":
-        params = randomize_answer_parameters(allow_value_count_flip,
-                                             attributes.attribute_allows_negative_upgrade(attribute))
+        params = randomize_answer_parameters(attribute)
         value = generate_similar_answer(ability_answer[attribute],
                                         params,
                                         abilities.is_ability_ultimate(ability_answer))
@@ -114,16 +113,19 @@ def generate_similar_answer(correct_answer, params, is_ultimate):
     return generated_answer
 
 
-def randomize_answer_parameters(allow_value_count_flip=True, allow_negative_upgrade=True):
-    flip_multiple_of_5 = random.random() < 0.1
+def randomize_answer_parameters(attribute):
+    if attributes.attribute_allows_flip_multiple_of_5(attribute):
+        flip_multiple_of_5 = random.random() < 0.1
+    else:
+        flip_multiple_of_5 = False
     flip_all_values_integer = random.random() < 0.1
-    if allow_value_count_flip:
+    if attributes.attribute_allows_value_count_flip(attribute):
         flip_value_count = random.random() < 0.1
     else:
         flip_value_count = False
     flip_all_upgrade_equal = random.random() < 0.1
     flip_upgrade_sign = random.random() < 0.1
-    allow_negative_upgrade = allow_negative_upgrade
+    allow_negative_upgrade = attributes.attribute_allows_negative_upgrade(attribute)
     return build_manual_answer_parameters(flip_multiple_of_5=flip_multiple_of_5,
                                           flip_all_values_integer=flip_all_values_integer,
                                           flip_value_count=flip_value_count,

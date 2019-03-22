@@ -21,30 +21,28 @@ def main():
     destination_file = open('abilities_custom_format.json', 'w+')
     destination_file.write(json.dumps(valid_abilities, indent=4, sort_keys=True))
 
-    # test_all_questions(valid_abilities)
+    # test_all_questions(valid_abilities, all_heroes)
     ask_random_questions(valid_abilities, all_heroes)
 
 
 def ask_random_questions(valid_abilities, all_heroes):
     while True:
         question_type = random.choice(list(QuestionType.__members__.values()))
+        question_type = QuestionType.HERO_ATTACK_DAMAGE_LVL1
 
         if is_ability_question(question_type):
             attribute = attributes.get_corresponding_attribute(question_type)
             possible_answers = abilities.get_abilities_with_attribute(valid_abilities, attribute)
             ability_answer = random.choice(possible_answers)
-            allow_value_count_flip = True
         elif is_hero_question(question_type):
             attribute = heroes.get_corresponding_attribute(question_type)
             possible_answers = [hero for hero in all_heroes.values()]
             if question_type == QuestionType.HERO_PROJECTILE_SPEED:
                 possible_answers = [hero for hero in all_heroes.values() if
                                     hero["AttackCapabilities"][0] == "DOTA_UNIT_CAP_RANGED_ATTACK"]
-            allow_value_count_flip = False
             ability_answer = random.choice(possible_answers)
 
-        wrong_answers = answers_generator.generate_wrong_answers(possible_answers, attribute, ability_answer,
-                                                                 allow_value_count_flip)
+        wrong_answers = answers_generator.generate_wrong_answers(possible_answers, attribute, ability_answer)
         all_answers = wrong_answers.copy()
         correct_index = random.randint(0, 3)
         all_answers.insert(correct_index, ability_answer[attribute])
@@ -69,25 +67,34 @@ def ask_random_questions(valid_abilities, all_heroes):
         time.sleep(1)
 
 
-def test_all_questions(valid_abilities):
+def test_all_questions(valid_abilities, all_heroes):
     invalid_combinations = []
     question_types = list(QuestionType.__members__.values())
     for question_type in question_types:
         valid_question_count = 0
-        attribute = attributes.get_corresponding_attribute(question_type)
-        possible_abilities = abilities.get_abilities_with_attribute(valid_abilities, attribute)
+
+        if is_ability_question(question_type):
+            attribute = attributes.get_corresponding_attribute(question_type)
+            possible_answers = abilities.get_abilities_with_attribute(valid_abilities, attribute)
+        elif is_hero_question(question_type):
+            attribute = heroes.get_corresponding_attribute(question_type)
+            possible_answers = [hero for hero in all_heroes.values()]
+            if question_type == QuestionType.HERO_PROJECTILE_SPEED:
+                possible_answers = [hero for hero in all_heroes.values() if
+                                    hero["AttackCapabilities"][0] == "DOTA_UNIT_CAP_RANGED_ATTACK"]
+
         debug_abilities = []
-        for ability_answer in possible_abilities:
+        for possible_answer in possible_answers:
             try:
-                answers_generator.generate_wrong_answers(possible_abilities, attribute, ability_answer)
+                answers_generator.generate_wrong_answers(possible_answers, attribute, possible_answer)
                 valid_question_count += 1
-                debug_abilities.append(ability_answer["name"])
+                debug_abilities.append(possible_answer["name"])
             except Exception as error:
                 print(error)
                 combination = dict()
-                combination["AbilityName"] = ability_answer["name"]
+                combination["AbilityName"] = possible_answer["name"]
                 combination["AttributeName"] = attribute
-                combination["AttributeValue"] = ability_answer[attribute]
+                combination["AttributeValue"] = possible_answer[attribute]
                 invalid_combinations.append(combination)
         print(str(question_type) + " has " + str(valid_question_count) + " valid questions")
         # print(debug_abilities)
@@ -104,15 +111,11 @@ def is_ability_question(question_type):
 def is_hero_question(question_type):
     hero_question_types = [QuestionType.HERO_STARTING_STATS, QuestionType.HERO_STAT_GAIN, QuestionType.HERO_TURN_RATE,
                            QuestionType.HERO_ATTACK_RANGE, QuestionType.HERO_VISION_RANGE,
-                           QuestionType.HERO_PROJECTILE_SPEED]
+                           QuestionType.HERO_PROJECTILE_SPEED, QuestionType.HERO_HP_LVL1, QuestionType.HERO_MANA_LVL1,
+                           QuestionType.HERO_ARMOR_LVL1, QuestionType.HERO_HP_REGEN_LVL1,
+                           QuestionType.HERO_MANA_REGEN_LVL1, QuestionType.HERO_MAGIC_RES_LVL1,
+                           QuestionType.HERO_ATTACK_DAMAGE_LVL1]
     return question_type in hero_question_types
-
-
-def must_generate_stats(question_type):
-    valid_types = [QuestionType.HERO_PROJECTILE_SPEED, QuestionType.HERO_ATTACK_RANGE, QuestionType.HERO_TURN_RATE,
-                   QuestionType.HERO_STAT_GAIN, QuestionType.HERO_STARTING_STATS, QuestionType.ABILITY_RANGE,
-                   QuestionType.ABILITY_CAST_POINT, QuestionType.HERO_VISION_RANGE]
-    return question_type in valid_types
 
 
 def print_stats_if_appropriate(possible_answers, attribute, answer):
@@ -126,9 +129,8 @@ def print_stats_if_appropriate(possible_answers, attribute, answer):
     print("\tMedian : " + str(numpy.median(values)))
     print("\tMinimum : " + str(numpy.min(values)))
     print("\tMaximum : " + str(numpy.max(values)))
-    print("\tHigher value count : " + str(len([value for value in values if value > answer[0]])))
-    print("\tLower value count : " + str(len([value for value in values if value < answer[0]])))
-    print("\tTotal value count : " + str(len(values)))
+    rank = len([value for value in values if value > answer[0]]) + 1
+    print("\tRanked " + str(rank) + " out of " + str(len(values)))
 
 
 if __name__ == '__main__':

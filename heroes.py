@@ -57,11 +57,38 @@ def valve_format_to_custom_format(heroes_valve):
                 except ValueError:
                     pass
                 hero_custom[attribute] = [hero_custom[attribute]]
+
+            add_custom_attributes(hero_custom)
+
             heroes_custom[hero_name] = hero_custom
         except Exception as error:
             print("ERROR BY " + hero_name + "\n\t" + str(error))
 
     return heroes_custom
+
+
+def add_custom_attributes(hero):
+    constants = theo_utils.get_dota_constants()
+    hero["Custom_HpLvl1"] = [hero["StatusHealth"][0] + hero["AttributeBaseStrength"][0] * constants["hp_per_str"]]
+    hero["Custom_ManaLvl1"] = [
+        hero["StatusMana"][0] + hero["AttributeBaseIntelligence"][0] * constants["mana_per_int"]]
+    hero["Custom_ArmorLvl1"] = [
+        hero["ArmorPhysical"][0] + hero["AttributeBaseAgility"][0] * constants["armor_per_agi"]]
+    hero["Custom_HpRegenLvl1"] = [
+        hero["StatusHealthRegen"][0] + hero["AttributeBaseStrength"][0] * constants["hp_regen_per_str"]]
+    hero["Custom_ManaRegenLvl1"] = [
+        hero["StatusManaRegen"][0] + hero["AttributeBaseIntelligence"][0] * constants["mana_regen_per_int"]]
+    hero["Custom_MagicResistanceLvl1"] = [1 - (1 - hero["MagicalResistance"][0] / 100) * (
+                1 - hero["AttributeBaseStrength"][0] * constants["magic_res_per_str"])]
+    dmg = round((hero["AttackDamageMin"][0] + hero["AttackDamageMax"][0]) / 2)
+    primary_attribute = hero["AttributePrimary"][0]
+    if primary_attribute == "DOTA_ATTRIBUTE_STRENGTH":
+        bonus = hero["AttributeBaseStrength"]
+    elif primary_attribute == "DOTA_ATTRIBUTE_AGILITY":
+        bonus = hero["AttributeBaseAgility"]
+    elif primary_attribute == "DOTA_ATTRIBUTE_INTELLECT":
+        bonus = hero["AttributeBaseIntelligence"]
+    hero["Custom_AttackDamageLvl1"] = [dmg + bonus[0]]
 
 
 def get_corresponding_attribute(question_type):
@@ -82,3 +109,17 @@ def get_corresponding_attribute(question_type):
         return "Vision" + random.choice(possible_time) + "timeRange"
     elif question_type == QuestionType.HERO_PROJECTILE_SPEED:
         return "ProjectileSpeed"
+    elif question_type == QuestionType.HERO_HP_LVL1:
+        return "Custom_HpLvl1"
+    elif question_type == QuestionType.HERO_MANA_LVL1:
+        return "Custom_ManaLvl1"
+    elif question_type == QuestionType.HERO_ARMOR_LVL1:
+        return "Custom_ArmorLvl1"
+    elif question_type == QuestionType.HERO_HP_REGEN_LVL1:
+        return "Custom_HpRegenLvl1"
+    elif question_type == QuestionType.HERO_MANA_REGEN_LVL1:
+        return "Custom_ManaRegenLvl1"
+    elif question_type == QuestionType.HERO_MAGIC_RES_LVL1:
+        return "Custom_MagicResistanceLvl1"
+    elif question_type == QuestionType.HERO_ATTACK_DAMAGE_LVL1:
+        return "Custom_AttackDamageLvl1"

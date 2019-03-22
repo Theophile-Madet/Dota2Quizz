@@ -27,3 +27,6 @@
 -Reverse questions : which ability has mana cost XXX
 -Fixed answer range? example, 0.4 < x < 1.1 for turn rate
 -Ask lvl specific question : damage of dragon slave on lvl 3
+-Fix tiny agi lvl 1 not generating answers
+-Fix tiny armor lvl 1 not generating answers
+-Use ranges instead of flat values for attack damage
