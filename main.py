@@ -17,14 +17,14 @@ def main():
     all_abilities = abilities.get_and_save_all_abilities()
     all_items = items.get_and_save_all_items()
 
-    # test_all_questions(all_abilities, all_heroes, all_items)
+    test_all_questions(all_abilities, all_heroes, all_items)
     ask_random_questions(all_abilities, all_heroes, all_items)
 
 
 def ask_random_questions(all_abilities, all_heroes, all_items):
     while True:
         question_type = random.choice(list(QuestionType.__members__.values()))
-        question_type = QuestionType.ITEM_COST
+        question_type = QuestionType.ITEM_PASSIVE_BONUS
 
         if is_ability_question(question_type):
             attribute = attributes.get_corresponding_attribute(question_type)
@@ -38,7 +38,7 @@ def ask_random_questions(all_abilities, all_heroes, all_items):
                                     hero["AttackCapabilities"][0] == "DOTA_UNIT_CAP_RANGED_ATTACK"]
             ability_answer = random.choice(possible_answers)
         elif is_item_question(question_type):
-            attribute = items.get_corresponding_attribute(question_type)
+            attribute = items.get_corresponding_attribute(question_type, all_items)
             possible_answers = items.get_items_with_attribute(all_items, attribute)
             ability_answer = random.choice(possible_answers)
 
@@ -83,7 +83,7 @@ def test_all_questions(all_abilities, all_heroes, all_items):
                 possible_answers = [hero for hero in all_heroes.values() if
                                     hero["AttackCapabilities"][0] == "DOTA_UNIT_CAP_RANGED_ATTACK"]
         elif is_item_question(question_type):
-            attribute = items.get_corresponding_attribute(question_type)
+            attribute = items.get_corresponding_attribute(question_type, all_items)
             possible_answers = items.get_items_with_attribute(all_items, attribute)
 
         debug_abilities = []
@@ -122,7 +122,9 @@ def is_hero_question(question_type):
 
 
 def is_item_question(question_type):
-    item_question_types = [QuestionType.ITEM_COST]
+    item_question_types = [QuestionType.ITEM_COST, QuestionType.ITEM_ACTIVE_COOLDOWN,
+                           QuestionType.ITEM_ACTIVE_MANA_COST, QuestionType.ITEM_ACTIVE_RANGE,
+                           QuestionType.ITEM_PASSIVE_BONUS]
     return question_type in item_question_types
 
 

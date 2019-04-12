@@ -30,3 +30,18 @@
 -Fix tiny agi lvl 1 not generating answers
 -Fix tiny armor lvl 1 not generating answers
 -Use ranges instead of flat values for attack damage
+-Handle cooldown manta melee / range
+-Avoid multiple values for item cooldowns
+-Print stats for item cooldowns
+-Add questions about talent values
+-Handle item mana cost 0
+-Handle mana cost for dagon
+-Handle cast range item blink
+-Handle item aura AOE being stored as cast range
+-Handle damage QB
+-Handle all item special stats (nightvision...)
+-Handle movement speed bonuses being % or flat
+-Handle item aura bonuses
+-Handle PT stat bonus
+-Balance occurences : example item stat bonus includes a lot of different stats, could appear more often than HERO_MAGIC_RES_LVL1
+-Fix item passives bonuses not being properly tested
