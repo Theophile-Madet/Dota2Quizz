@@ -23,8 +23,8 @@ def randfloat(a, b):
     return round(random.uniform(a, b), 2)
 
 
-def get_dota_folder_path():
-    return "C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta\\game\\dota\\scripts\\npc\\"
+def get_dota_folder_base_path():
+    return "C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta\\game\\dota\\"
 
 
 def valve_string_to_json_string(valve_string):

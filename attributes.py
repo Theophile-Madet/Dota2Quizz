@@ -10,7 +10,7 @@ def attribute_allows_negative_upgrade(attribute):
 
 
 def attribute_allows_flip_multiple_of_5(attribute):
-    forbid_list = ["Custom_HpLvl1"]
+    forbid_list = ["Custom_HpLvl1", "ItemCost"]
     if attribute in forbid_list:
         return False
     else:
@@ -22,7 +22,7 @@ def attribute_allows_value_count_flip(attribute):
                    "VisionNighttimeRange", "AttackRange", "MovementTurnRate", "AttributeStrengthGain",
                    "AttributeAgilityGain", "AttributeIntelligenceGain", "AttributeBaseStrength", "AttributeBaseAgility",
                    "AttributeBaseIntelligence", "Custom_HpRegenLvl1", "Custom_ManaRegenLvl1",
-                   "Custom_MagicResistanceLvl1", "Custom_AttackDamageLvl1"]
+                   "Custom_MagicResistanceLvl1", "Custom_AttackDamageLvl1", "ItemCost"]
     if attribute in forbid_list:
         return False
     else:

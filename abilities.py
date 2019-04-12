@@ -19,17 +19,24 @@ def get_abilities_with_attribute(all_abilities, attribute):
 def get_and_save_all_abilities():
     json_string = get_abilities_json()
     try:
-        all_abilities = json.loads(json_string)["DOTAAbilities"]
+        valve_abilities = json.loads(json_string)["DOTAAbilities"]
     except ValueError as e:
         print('invalid json: %s' % e)
         return None
 
-    json_string = json.dumps(all_abilities, indent=4)
+    json_string = json.dumps(valve_abilities, indent=4)
     destination_file = open('abilities_valve_format.json', 'w+')
     destination_file.write(json_string)
     destination_file.close()
 
-    return all_abilities
+    custom_abilities = valve_to_custom_format(valve_abilities)
+    custom_abilities = get_valid_abilities(custom_abilities)
+    compress_constant_attributes(custom_abilities)
+
+    destination_file = open('abilities_custom_format.json', 'w+')
+    destination_file.write(json.dumps(custom_abilities, indent=4, sort_keys=True))
+
+    return custom_abilities
 
 
 def valve_to_custom_format(valve_abilities):
@@ -70,7 +77,7 @@ def valve_to_custom_format(valve_abilities):
 
 
 def get_abilities_json():
-    source_file = open(theo_utils.get_dota_folder_path() + 'npc_abilities.txt',
+    source_file = open(theo_utils.get_dota_folder_base_path() + 'scripts\\npc\\npc_abilities.txt',
                        'r')
     valve_string = source_file.read()
     source_file.close()

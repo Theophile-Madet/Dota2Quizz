@@ -5,7 +5,7 @@ from question_types import QuestionType
 
 
 def get_and_save_all_heroes():
-    source_file = open(theo_utils.get_dota_folder_path() + 'npc_heroes.txt',
+    source_file = open(theo_utils.get_dota_folder_base_path() + 'scripts\\npc\\npc_heroes.txt',
                        'r')
     valve_string = source_file.read()
     json_string = theo_utils.valve_string_to_json_string(valve_string)

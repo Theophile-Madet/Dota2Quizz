@@ -6,6 +6,7 @@ import heroes
 import attributes
 import answers_generator
 import numpy
+import items
 from question_types import QuestionType
 
 
@@ -13,26 +14,21 @@ def main():
     print('Welcome to Théo\'s Dota 2 Quizz!\n\n')
 
     all_heroes = heroes.get_and_save_all_heroes()
-    valve_abilities = abilities.get_and_save_all_abilities()
-    all_abilities = abilities.valve_to_custom_format(valve_abilities)
-    valid_abilities = abilities.get_valid_abilities(all_abilities)
-    abilities.compress_constant_attributes(valid_abilities)
+    all_abilities = abilities.get_and_save_all_abilities()
+    all_items = items.get_and_save_all_items()
 
-    destination_file = open('abilities_custom_format.json', 'w+')
-    destination_file.write(json.dumps(valid_abilities, indent=4, sort_keys=True))
-
-    # test_all_questions(valid_abilities, all_heroes)
-    ask_random_questions(valid_abilities, all_heroes)
+    # test_all_questions(all_abilities, all_heroes, all_items)
+    ask_random_questions(all_abilities, all_heroes, all_items)
 
 
-def ask_random_questions(valid_abilities, all_heroes):
+def ask_random_questions(all_abilities, all_heroes, all_items):
     while True:
         question_type = random.choice(list(QuestionType.__members__.values()))
-        question_type = QuestionType.HERO_ATTACK_DAMAGE_LVL1
+        question_type = QuestionType.ITEM_COST
 
         if is_ability_question(question_type):
             attribute = attributes.get_corresponding_attribute(question_type)
-            possible_answers = abilities.get_abilities_with_attribute(valid_abilities, attribute)
+            possible_answers = abilities.get_abilities_with_attribute(all_abilities, attribute)
             ability_answer = random.choice(possible_answers)
         elif is_hero_question(question_type):
             attribute = heroes.get_corresponding_attribute(question_type)
@@ -40,6 +36,10 @@ def ask_random_questions(valid_abilities, all_heroes):
             if question_type == QuestionType.HERO_PROJECTILE_SPEED:
                 possible_answers = [hero for hero in all_heroes.values() if
                                     hero["AttackCapabilities"][0] == "DOTA_UNIT_CAP_RANGED_ATTACK"]
+            ability_answer = random.choice(possible_answers)
+        elif is_item_question(question_type):
+            attribute = items.get_corresponding_attribute(question_type)
+            possible_answers = items.get_items_with_attribute(all_items, attribute)
             ability_answer = random.choice(possible_answers)
 
         wrong_answers = answers_generator.generate_wrong_answers(possible_answers, attribute, ability_answer)
@@ -67,7 +67,7 @@ def ask_random_questions(valid_abilities, all_heroes):
         time.sleep(1)
 
 
-def test_all_questions(valid_abilities, all_heroes):
+def test_all_questions(all_abilities, all_heroes, all_items):
     invalid_combinations = []
     question_types = list(QuestionType.__members__.values())
     for question_type in question_types:
@@ -75,13 +75,16 @@ def test_all_questions(valid_abilities, all_heroes):
 
         if is_ability_question(question_type):
             attribute = attributes.get_corresponding_attribute(question_type)
-            possible_answers = abilities.get_abilities_with_attribute(valid_abilities, attribute)
+            possible_answers = abilities.get_abilities_with_attribute(all_abilities, attribute)
         elif is_hero_question(question_type):
             attribute = heroes.get_corresponding_attribute(question_type)
             possible_answers = [hero for hero in all_heroes.values()]
             if question_type == QuestionType.HERO_PROJECTILE_SPEED:
                 possible_answers = [hero for hero in all_heroes.values() if
                                     hero["AttackCapabilities"][0] == "DOTA_UNIT_CAP_RANGED_ATTACK"]
+        elif is_item_question(question_type):
+            attribute = items.get_corresponding_attribute(question_type)
+            possible_answers = items.get_items_with_attribute(all_items, attribute)
 
         debug_abilities = []
         for possible_answer in possible_answers:
@@ -98,7 +101,7 @@ def test_all_questions(valid_abilities, all_heroes):
                 invalid_combinations.append(combination)
         print(str(question_type) + " has " + str(valid_question_count) + " valid questions")
         # print(debug_abilities)
-    print(invalid_combinations)
+    print('INVALID COMBINATIONS : ' + str(invalid_combinations))
 
 
 def is_ability_question(question_type):
@@ -116,6 +119,11 @@ def is_hero_question(question_type):
                            QuestionType.HERO_MANA_REGEN_LVL1, QuestionType.HERO_MAGIC_RES_LVL1,
                            QuestionType.HERO_ATTACK_DAMAGE_LVL1]
     return question_type in hero_question_types
+
+
+def is_item_question(question_type):
+    item_question_types = [QuestionType.ITEM_COST]
+    return question_type in item_question_types
 
 
 def print_stats_if_appropriate(possible_answers, attribute, answer):
