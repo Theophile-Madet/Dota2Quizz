@@ -33,7 +33,7 @@ def valve_format_to_custom_format(items_valve):
     name_filter = ["Version", "item_super_blink", "item_pocket_tower", "item_pocket_roshan", "item_mutation_tombstone"]
     attribute_filter = ["EventID", "IsObsolete"]
     kept_attributes = ['AbilityCastRange', 'AbilityCastPoint', 'AbilityCooldown', 'AbilityManaCost', 'ItemCost',
-                       'SideShop', 'AbilitySpecial', 'SecretShop', 'ItemInitialCharges', 'IsTempestDoubleClonable',
+                       'SideShop', 'SecretShop', 'ItemInitialCharges', 'IsTempestDoubleClonable',
                        'ItemStockTime', 'ItemStockInitial', 'ItemStockMax', 'ItemInitialStockTime', 'ItemRecipe',
                        'ItemResult', 'ItemRequirements', 'ItemDisassembleRule', 'AbilityChannelTime',
                        'AbilityUnitDamageType', 'SpellImmunityType', 'AbilityName']
@@ -56,7 +56,33 @@ def valve_format_to_custom_format(items_valve):
         item_custom = dict()
         item_custom["name"] = item_name
 
-        special_converstions = {
+        special_conversions = get_special_conversions()
+
+        if "AbilitySpecial" in item_valve:
+            for special_index in item_valve["AbilitySpecial"]:
+                special = item_valve["AbilitySpecial"][special_index]
+                for key in special.keys():
+                    if key in special_conversions:
+                        item_valve[special_conversions[key]] = special[key]
+
+        for attribute in item_valve:
+            if attribute in kept_attributes or attribute.startswith("Passive"):
+                item_custom[attribute] = [item_valve[attribute]]
+                if attribute in convert_to_number_attribute or attribute.startswith("Passive"):
+                    attribute_string_value = item_valve[attribute]
+                    values = attribute_string_value.split(" ")
+                    values = [float(value) for value in values]
+                    if all([value.is_integer() for value in values]):
+                        values = [int(value) for value in values]
+                    item_custom[attribute] = values
+
+        items_custom[item_name] = item_custom
+
+    return items_custom
+
+
+def get_special_conversions():
+    return {
             "bonus_strength": "PassiveStrength",
             "bonus_str": "PassiveStrength",
             "bonus_agility": "PassiveAgility",
@@ -88,28 +114,6 @@ def valve_format_to_custom_format(items_valve):
             "bonus_spell_amp": "PassiveSpellAmp",
             "spell_amp": "PassiveSpellAmp",
         }
-
-        if "AbilitySpecial" in item_valve:
-            for special_index in item_valve["AbilitySpecial"]:
-                special = item_valve["AbilitySpecial"][special_index]
-                for key in special.keys():
-                    if key in special_converstions:
-                        item_valve[special_converstions[key]] = special[key]
-
-        for attribute in item_valve:
-            if attribute in kept_attributes or attribute.startswith("Passive"):
-                item_custom[attribute] = [item_valve[attribute]]
-                if attribute in convert_to_number_attribute or attribute.startswith("Passive"):
-                    attribute_string_value = item_valve[attribute]
-                    values = attribute_string_value.split(" ")
-                    values = [float(value) for value in values]
-                    if all([value.is_integer() for value in values]):
-                        values = [int(value) for value in values]
-                    item_custom[attribute] = values
-
-        items_custom[item_name] = item_custom
-
-    return items_custom
 
 
 def get_corresponding_attribute(question_type, all_items):

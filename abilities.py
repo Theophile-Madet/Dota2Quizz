@@ -42,6 +42,8 @@ def get_and_save_all_abilities():
 def valve_to_custom_format(valve_abilities):
     kept_attributes = ["AbilityDamage", "AbilityManaCost", "AbilityCooldown", "AbilityCastPoint", "AbilityCastRange",
                        "AbilityType"]
+    special_conversions = get_special_conversions()
+
     custom_abilities = dict()
     for ability_name in valve_abilities:
         if ability_name == "Version":
@@ -52,6 +54,31 @@ def valve_to_custom_format(valve_abilities):
         for attribute in valve_ability:
             if attribute in kept_attributes:
                 custom_ability[attribute] = valve_ability[attribute]
+
+        if ability_name in special_conversions:
+            for special_index in valve_ability["AbilitySpecial"]:
+                special = valve_ability["AbilitySpecial"][special_index]
+                for conversion in special_conversions[ability_name]:
+                    for key in special.keys():
+                        if key == conversion[0]:
+                            custom_ability[conversion[1]] = special[key]
+        elif "AbilitySpecial" in valve_ability.keys():
+            for special_index in valve_ability["AbilitySpecial"]:
+                special = valve_ability["AbilitySpecial"][special_index]
+                for original_attribute in special.keys():
+                    if original_attribute == "var_type":
+                        continue
+                    converted_attribute = input(ability_name + " - " + original_attribute + ": ")
+                    if converted_attribute != '':
+                        if ability_name not in special_conversions.keys():
+                            special_conversions[ability_name] = []
+                        special_conversions[ability_name].append([original_attribute, converted_attribute])
+
+        json_string = json.dumps(special_conversions, indent=4)
+        destination_file = open('abilities_special_conversions.json', 'w+')
+        destination_file.write(json_string)
+        destination_file.close()
+
         custom_abilities[ability_name] = custom_ability
 
     # convert attribute values from string to int list
@@ -76,6 +103,11 @@ def valve_to_custom_format(valve_abilities):
     return custom_abilities
 
 
+def get_special_conversions():
+    source_file = open('abilities_special_conversions.json', 'r')
+    return json.load(source_file)
+
+
 def get_abilities_json():
     source_file = open(theo_utils.get_dota_folder_base_path() + 'scripts\\npc\\npc_abilities.txt',
                        'r')
@@ -87,7 +119,8 @@ def get_abilities_json():
 def get_valid_abilities(all_abilities):
     exclude_list = ["Version", "ability_base", "dota_base_ability", "default_attack", "attribute_bonus",
                     "ability_deward", "generic_hidden", "consumable_hidden", "throw_snowball",
-                    "elder_titan_echo_stomp_spirit", "keeper_of_the_light_spirit_form", "keeper_of_the_light_recall", "shoot_firework"]
+                    "elder_titan_echo_stomp_spirit", "keeper_of_the_light_spirit_form", "keeper_of_the_light_recall",
+                    "shoot_firework"]
     exclude_substring = ["seasonal", "frostivus", "cny", "greevil", "courier", "roshan", "kobold", "centaur_khan",
                          "spawnlord", "special_bonus", "empty"]
     abilities_filtered = dict()

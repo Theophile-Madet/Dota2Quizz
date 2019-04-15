@@ -24,7 +24,7 @@ def main():
 def ask_random_questions(all_abilities, all_heroes, all_items):
     while True:
         question_type = random.choice(list(QuestionType.__members__.values()))
-        question_type = QuestionType.ITEM_PASSIVE_BONUS
+        # question_type = QuestionType.ITEM_PASSIVE_BONUS
 
         if is_ability_question(question_type):
             attribute = attributes.get_corresponding_attribute(question_type)
