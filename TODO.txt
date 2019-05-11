@@ -52,3 +52,5 @@
 -Add damage types
 -Add agha question
 -Doppelganger illu 1 / illu 2
+- verifier si heroes intell agi gagnent de la magic resistance des stats force
+-Check zeus sight range for ult (files gives conflicting values)

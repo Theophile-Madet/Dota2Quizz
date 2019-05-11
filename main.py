@@ -14,22 +14,27 @@ def main():
     print('Welcome to Théo\'s Dota 2 Quizz!\n\n')
 
     all_heroes = heroes.get_and_save_all_heroes()
-    all_abilities = abilities.get_and_save_all_abilities()
+    ability_names = get_ability_name_list(all_heroes)
+    all_abilities = abilities.get_and_save_all_abilities(ability_names)
     all_items = items.get_and_save_all_items()
 
-    test_all_questions(all_abilities, all_heroes, all_items)
+    # test_all_questions(all_abilities, all_heroes, all_items)
     ask_random_questions(all_abilities, all_heroes, all_items)
 
 
 def ask_random_questions(all_abilities, all_heroes, all_items):
     while True:
         question_type = random.choice(list(QuestionType.__members__.values()))
-        # question_type = QuestionType.ITEM_PASSIVE_BONUS
 
         if is_ability_question(question_type):
-            attribute = attributes.get_corresponding_attribute(question_type)
-            possible_answers = abilities.get_abilities_with_attribute(all_abilities, attribute)
-            ability_answer = random.choice(possible_answers)
+            if question_type == QuestionType.ABILITY_RANDOM_ATTRIBUTE:
+                ability_answer = random.choice(list(all_abilities.values()))
+                attribute = random.choice(list(ability_answer.keys()))
+                possible_answers = abilities.get_abilities_with_attribute(all_abilities, attribute)
+            else:
+                attribute = attributes.get_corresponding_attribute(question_type)
+                possible_answers = abilities.get_abilities_with_attribute(all_abilities, attribute)
+                ability_answer = random.choice(possible_answers)
         elif is_hero_question(question_type):
             attribute = heroes.get_corresponding_attribute(question_type)
             possible_answers = [hero for hero in all_heroes.values()]
@@ -107,7 +112,7 @@ def test_all_questions(all_abilities, all_heroes, all_items):
 def is_ability_question(question_type):
     ability_question_types = [QuestionType.ABILITY_MANA_COST, QuestionType.ABILITY_DAMAGE,
                               QuestionType.ABILITY_CAST_POINT, QuestionType.ABILITY_COOLDOWN,
-                              QuestionType.ABILITY_RANGE]
+                              QuestionType.ABILITY_RANGE, QuestionType.ABILITY_RANDOM_ATTRIBUTE]
     return question_type in ability_question_types
 
 
@@ -141,6 +146,14 @@ def print_stats_if_appropriate(possible_answers, attribute, answer):
     print("\tMaximum : " + str(numpy.max(values)))
     rank = len([value for value in values if value > answer[0]]) + 1
     print("\tRanked " + str(rank) + " out of " + str(len(values)))
+
+
+def get_ability_name_list(all_heroes):
+    ability_list = []
+    for hero_name in all_heroes:
+        for ability_name in all_heroes[hero_name]["Abilities"]:
+            ability_list.append(ability_name)
+    return ability_list
 
 
 if __name__ == '__main__':

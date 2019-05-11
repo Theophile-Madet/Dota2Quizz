@@ -58,6 +58,7 @@ def valve_format_to_custom_format(heroes_valve):
                     pass
                 hero_custom[attribute] = [hero_custom[attribute]]
 
+            add_abilities(hero_valve, hero_custom)
             add_custom_attributes(hero_custom)
 
             heroes_custom[hero_name] = hero_custom
@@ -65,6 +66,22 @@ def valve_format_to_custom_format(heroes_valve):
             print("ERROR BY " + hero_name + "\n\t" + str(error))
 
     return heroes_custom
+
+
+def add_abilities(hero_valve, hero_custom):
+    abilities = []
+    for attribute_name in hero_valve:
+        if not attribute_name.startswith("Ability") or len(attribute_name) > 9:
+            continue
+        ability_name = hero_valve[attribute_name]
+        if ability_name == "generic_hidden" or ability_name.startswith(
+                "special_bonus") or ability_name.endswith("empty1") or ability_name.endswith(
+                "empty2") or ability_name.endswith("hidden1") or ability_name.endswith(
+                "hidden2") or ability_name.endswith("hidden3"):
+            continue
+        abilities.append(ability_name)
+
+    hero_custom["Abilities"] = abilities
 
 
 def add_custom_attributes(hero):
@@ -79,7 +96,7 @@ def add_custom_attributes(hero):
     hero["Custom_ManaRegenLvl1"] = [
         hero["StatusManaRegen"][0] + hero["AttributeBaseIntelligence"][0] * constants["mana_regen_per_int"]]
     hero["Custom_MagicResistanceLvl1"] = [1 - (1 - hero["MagicalResistance"][0] / 100) * (
-                1 - hero["AttributeBaseStrength"][0] * constants["magic_res_per_str"])]
+            1 - hero["AttributeBaseStrength"][0] * constants["magic_res_per_str"])]
     dmg = round((hero["AttackDamageMin"][0] + hero["AttackDamageMax"][0]) / 2)
     primary_attribute = hero["AttributePrimary"][0]
     if primary_attribute == "DOTA_ATTRIBUTE_STRENGTH":

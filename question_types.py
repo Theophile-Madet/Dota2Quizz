@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class QuestionType(Enum):
     ABILITY_DAMAGE = 1,
     ABILITY_MANA_COST = 2,
@@ -15,6 +16,7 @@ class QuestionType(Enum):
     # ABILITY_HEAL = 31,
     # ABILITY_SPECIAL = 37, #dazzle CDR, necro damage multiplier...
     # ABILITY_DPS = 81,
+    ABILITY_RANDOM_ATTRIBUTE = 82,
     # DEBUFF_IS_DISPELLABLE = 9,
     HERO_STARTING_STATS = 10,
     HERO_STAT_GAIN = 11,

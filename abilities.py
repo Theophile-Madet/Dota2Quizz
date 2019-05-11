@@ -16,7 +16,7 @@ def get_abilities_with_attribute(all_abilities, attribute):
     return abilities_with_attribute
 
 
-def get_and_save_all_abilities():
+def get_and_save_all_abilities(ability_name_list):
     json_string = get_abilities_json()
     try:
         valve_abilities = json.loads(json_string)["DOTAAbilities"]
@@ -29,7 +29,7 @@ def get_and_save_all_abilities():
     destination_file.write(json_string)
     destination_file.close()
 
-    custom_abilities = valve_to_custom_format(valve_abilities)
+    custom_abilities = valve_to_custom_format(valve_abilities, ability_name_list)
     custom_abilities = get_valid_abilities(custom_abilities)
     compress_constant_attributes(custom_abilities)
 
@@ -39,14 +39,14 @@ def get_and_save_all_abilities():
     return custom_abilities
 
 
-def valve_to_custom_format(valve_abilities):
+def valve_to_custom_format(valve_abilities, ability_name_list):
     kept_attributes = ["AbilityDamage", "AbilityManaCost", "AbilityCooldown", "AbilityCastPoint", "AbilityCastRange",
                        "AbilityType"]
     special_conversions = get_special_conversions()
 
     custom_abilities = dict()
     for ability_name in valve_abilities:
-        if ability_name == "Version":
+        if ability_name not in ability_name_list:
             continue
         valve_ability = valve_abilities[ability_name]
         custom_ability = dict()
@@ -84,12 +84,13 @@ def valve_to_custom_format(valve_abilities):
     # convert attribute values from string to int list
     for ability in custom_abilities.values():
         for attribute_name in ability:
-            if attribute_name == "name" or attribute_name == "AbilityType":
+            if attribute_name == "name" or attribute_name == "AbilityType" or attribute_name == "Abilities":
                 continue
             attribute_string_value = ability[attribute_name]
             if not isinstance(attribute_string_value, str):
                 continue
             values = attribute_string_value.split(" ")
+
             values = [float(value) for value in values]
             if all([value.is_integer() for value in values]):
                 values = [int(value) for value in values]
@@ -155,3 +156,4 @@ def compress_constant_attributes(abilities):
 
 def is_ability_ultimate(ability):
     return "AbilityType" in ability.keys() and ability["AbilityType"] == "DOTA_ABILITY_TYPE_ULTIMATE"
+

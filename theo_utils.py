@@ -66,4 +66,8 @@ def valve_string_to_json_string(valve_string):
     replace = r'"\1": {'
     json_string = re.sub(pattern, replace, json_string)
 
+    pattern = r'\t'
+    replace = r''
+    json_string = re.sub(pattern, replace, json_string)
+
     return json_string
