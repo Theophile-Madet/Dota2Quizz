@@ -1,5 +1,6 @@
 import random
 import re
+import json
 
 
 def get_dota_constants():
@@ -23,8 +24,11 @@ def randfloat(a, b):
     return round(random.uniform(a, b), 2)
 
 
-def get_dota_folder_base_path():
-    return "D:\\SteamLibrary\\steamapps\\common\\dota 2 beta\\game\\dota\\"
+def load_json_in_file(path):
+    file = open(path, 'r')
+    json_string = file.read()
+    file.close()
+    return json.loads(json_string)
 
 
 def valve_string_to_json_string(valve_string):

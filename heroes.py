@@ -1,28 +1,47 @@
 import json
 import theo_utils
 import random
+import os.path
+import file_paths
 from question_types import QuestionType
 
 
 def get_and_save_all_heroes():
-    source_file = open(theo_utils.get_dota_folder_base_path() + 'scripts\\npc\\npc_heroes.txt',
-                       'r')
+    create_heroes_custom_file_if_necessary()
+    return theo_utils.load_json_in_file(file_paths.heroes_custom_format())
+
+
+def create_heroes_custom_file_if_necessary():
+    if not os.path.isfile(file_paths.heroes_custom_format()):
+        create_heroes_custom_file()
+        return
+
+    valve_file_path = file_paths.heroes_source_file()
+    valve_file_modification_date = os.path.getmtime(valve_file_path)
+    custom_file_modification_date = os.path.getmtime(file_paths.heroes_custom_format())
+    if valve_file_modification_date > custom_file_modification_date:
+        create_heroes_custom_file()
+
+
+def create_heroes_custom_file():
+    valve_file_path = file_paths.heroes_source_file()
+
+    source_file = open(valve_file_path, 'r')
     valve_string = source_file.read()
+    source_file.close()
     json_string = theo_utils.valve_string_to_json_string(valve_string)
 
     heroes_valve = json.loads(json_string)['DOTAHeroes']
     json_string = json.dumps(heroes_valve, indent=4)
-    destination_file = open('heroes_valve_format.json', 'w+')
+    destination_file = open(file_paths.heroes_valve_format(), 'w+')
     destination_file.write(json_string)
     destination_file.close()
 
     heroes_custom = valve_format_to_custom_format(heroes_valve)
     json_string = json.dumps(heroes_custom, indent=4)
-    destination_file = open('heroes_custom_format.json', 'w+')
+    destination_file = open(file_paths.heroes_custom_format(), 'w+')
     destination_file.write(json_string)
     destination_file.close()
-
-    return heroes_custom
 
 
 def valve_format_to_custom_format(heroes_valve):
@@ -76,8 +95,8 @@ def add_abilities(hero_valve, hero_custom):
         ability_name = hero_valve[attribute_name]
         if ability_name == "generic_hidden" or ability_name.startswith(
                 "special_bonus") or ability_name.endswith("empty1") or ability_name.endswith(
-                "empty2") or ability_name.endswith("hidden1") or ability_name.endswith(
-                "hidden2") or ability_name.endswith("hidden3"):
+            "empty2") or ability_name.endswith("hidden1") or ability_name.endswith(
+            "hidden2") or ability_name.endswith("hidden3"):
             continue
         abilities.append(ability_name)
 
@@ -140,3 +159,15 @@ def get_corresponding_attribute(question_type):
         return "Custom_MagicResistanceLvl1"
     elif question_type == QuestionType.HERO_ATTACK_DAMAGE_LVL1:
         return "Custom_AttackDamageLvl1"
+
+
+def get_random_attribute_from_hero_valid_for_question(ability):
+    exclude_list = ["", "name", "Abilities", "AttributePrimary", "AttackCapabilities", "ArmorPhysical",
+                    "StatusHealthRegen", "StatusMana", "StatusHealth", "MagicalResistance", "AttackDamageMin",
+                    "AttackDamageMax", "StatusManaRegen"]
+    attributes = list(ability.keys())
+
+    attribute = ""
+    while attribute in exclude_list:
+        attribute = random.choice(attributes)
+    return attribute

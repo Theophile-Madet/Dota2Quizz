@@ -1,5 +1,8 @@
 import json
+import random
 import theo_utils
+import os.path
+import file_paths
 
 
 def get_abilities_with_attribute(all_abilities, attribute):
@@ -17,6 +20,23 @@ def get_abilities_with_attribute(all_abilities, attribute):
 
 
 def get_and_save_all_abilities(ability_name_list):
+    create_abilities_custom_file_if_necessary(ability_name_list)
+    return theo_utils.load_json_in_file(file_paths.abilities_custom_format())
+
+
+def create_abilities_custom_file_if_necessary(ability_name_list):
+    if not os.path.isfile(file_paths.abilities_custom_format()):
+        create_custom_abilities_file(ability_name_list)
+        return
+
+    valve_file_path = file_paths.abilities_source_file()
+    valve_file_modification_date = os.path.getmtime(valve_file_path)
+    custom_file_modification_date = os.path.getmtime(file_paths.abilities_custom_format())
+    if valve_file_modification_date > custom_file_modification_date:
+        create_custom_abilities_file(ability_name_list)
+
+
+def create_custom_abilities_file(ability_name_list):
     json_string = get_abilities_json()
     try:
         valve_abilities = json.loads(json_string)["DOTAAbilities"]
@@ -25,7 +45,7 @@ def get_and_save_all_abilities(ability_name_list):
         return None
 
     json_string = json.dumps(valve_abilities, indent=4)
-    destination_file = open('abilities_valve_format.json', 'w+')
+    destination_file = open(file_paths.abilities_valve_format(), 'w+')
     destination_file.write(json_string)
     destination_file.close()
 
@@ -33,16 +53,15 @@ def get_and_save_all_abilities(ability_name_list):
     custom_abilities = get_valid_abilities(custom_abilities)
     compress_constant_attributes(custom_abilities)
 
-    destination_file = open('abilities_custom_format.json', 'w+')
+    destination_file = open(file_paths.abilities_custom_format(), 'w+')
     destination_file.write(json.dumps(custom_abilities, indent=4, sort_keys=True))
-
-    return custom_abilities
+    destination_file.close()
 
 
 def valve_to_custom_format(valve_abilities, ability_name_list):
     kept_attributes = ["AbilityDamage", "AbilityManaCost", "AbilityCooldown", "AbilityCastPoint", "AbilityCastRange",
                        "AbilityType"]
-    special_conversions = get_special_conversions()
+    special_conversions = theo_utils.load_json_in_file(file_paths.abilities_special_conversions())
 
     custom_abilities = dict()
     for ability_name in valve_abilities:
@@ -68,16 +87,16 @@ def valve_to_custom_format(valve_abilities, ability_name_list):
                 for original_attribute in special.keys():
                     if original_attribute == "var_type":
                         continue
-                    converted_attribute = input(ability_name + " - " + original_attribute + ": ")
-                    if converted_attribute != '':
-                        if ability_name not in special_conversions.keys():
-                            special_conversions[ability_name] = []
-                        special_conversions[ability_name].append([original_attribute, converted_attribute])
-
-        json_string = json.dumps(special_conversions, indent=4)
-        destination_file = open('abilities_special_conversions.json', 'w+')
-        destination_file.write(json_string)
-        destination_file.close()
+        #             converted_attribute = input(ability_name + " - " + original_attribute + ": ")
+        #             if converted_attribute != '':
+        #                 if ability_name not in special_conversions.keys():
+        #                     special_conversions[ability_name] = []
+        #                 special_conversions[ability_name].append([original_attribute, converted_attribute])
+        #
+        # json_string = json.dumps(special_conversions, indent=4)
+        # destination_file = open('abilities_special_conversions.json', 'w+')
+        # destination_file.write(json_string)
+        # destination_file.close()
 
         custom_abilities[ability_name] = custom_ability
 
@@ -104,24 +123,15 @@ def valve_to_custom_format(valve_abilities, ability_name_list):
     return custom_abilities
 
 
-def get_special_conversions():
-    source_file = open('abilities_special_conversions.json', 'r')
-    return json.load(source_file)
-
-
 def get_abilities_json():
-    source_file = open(theo_utils.get_dota_folder_base_path() + 'scripts\\npc\\npc_abilities.txt',
-                       'r')
-    valve_string = source_file.read()
-    source_file.close()
-    return theo_utils.valve_string_to_json_string(valve_string)
+    return theo_utils.load_json_in_file(file_paths.abilities_source_file())
 
 
 def get_valid_abilities(all_abilities):
     exclude_list = ["Version", "ability_base", "dota_base_ability", "default_attack", "attribute_bonus",
                     "ability_deward", "generic_hidden", "consumable_hidden", "throw_snowball",
                     "elder_titan_echo_stomp_spirit", "keeper_of_the_light_spirit_form", "keeper_of_the_light_recall",
-                    "shoot_firework"]
+                    "shoot_firework", "techies_focused_detonate", "rubick_telekinesis_land"]
     exclude_substring = ["seasonal", "frostivus", "cny", "greevil", "courier", "roshan", "kobold", "centaur_khan",
                          "spawnlord", "special_bonus", "empty"]
     abilities_filtered = dict()
@@ -156,4 +166,46 @@ def compress_constant_attributes(abilities):
 
 def is_ability_ultimate(ability):
     return "AbilityType" in ability.keys() and ability["AbilityType"] == "DOTA_ABILITY_TYPE_ULTIMATE"
+
+
+def get_random_attribute_from_ability_valid_for_question(ability):
+    exclude_list = ["", "name", "AbilityType"]
+    attributes = list(ability.keys())
+    if all([attribute in exclude_list for attribute in attributes]):
+        raise Exception("Invalid ability : no valid attribute " + ability["name"])
+
+    attribute = ""
+    while attribute in exclude_list:
+        attribute = random.choice(attributes)
+    return attribute
+
+
+def progress_special_conversions(ability_name_list):
+    valve_abilities = theo_utils.load_json_in_file(file_paths.abilities_valve_format())
+    special_conversions = theo_utils.load_json_in_file(file_paths.abilities_special_conversions())
+
+    for ability_name in valve_abilities:
+        if ability_name not in ability_name_list:
+            continue
+        valve_ability = valve_abilities[ability_name]
+
+        if ability_name in special_conversions:
+            continue
+        elif "AbilitySpecial" in valve_ability.keys():
+            for special_index in valve_ability["AbilitySpecial"]:
+                special = valve_ability["AbilitySpecial"][special_index]
+                for original_attribute in special.keys():
+                    if original_attribute == "var_type":
+                        continue
+                    converted_attribute = input(ability_name + " - " + original_attribute + ": ")
+                    if converted_attribute != '':
+                        if ability_name not in special_conversions.keys():
+                            special_conversions[ability_name] = []
+                        special_conversions[ability_name].append([original_attribute, converted_attribute])
+            break
+
+        json_string = json.dumps(special_conversions, indent=4)
+        destination_file = open('abilities_special_conversions.json', 'w+')
+        destination_file.write(json_string)
+        destination_file.close()
 

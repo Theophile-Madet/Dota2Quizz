@@ -1,4 +1,3 @@
-import json
 import random
 import time
 import abilities
@@ -7,11 +6,16 @@ import attributes
 import answers_generator
 import numpy
 import items
+import file_paths
+import os.path
+from enum import Enum
 from question_types import QuestionType
 
 
 def main():
     print('Welcome to Théo\'s Dota 2 Quizz!\n\n')
+
+    create_directories()
 
     all_heroes = heroes.get_and_save_all_heroes()
     ability_names = get_ability_name_list(all_heroes)
@@ -22,54 +26,117 @@ def main():
     ask_random_questions(all_abilities, all_heroes, all_items)
 
 
+def create_directories():
+    if not os.path.isdir(file_paths.custom_files_folder()):
+        os.makedirs(file_paths.custom_files_folder())
+
+
 def ask_random_questions(all_abilities, all_heroes, all_items):
     while True:
-        question_type = random.choice(list(QuestionType.__members__.values()))
+        try:
+            ask_a_single_question(all_abilities, all_heroes, all_items)
+            abilities.progress_special_conversions()
+        except Exception as error:
+            print("Error asking question")
+            print(error)
 
-        if is_ability_question(question_type):
-            if question_type == QuestionType.ABILITY_RANDOM_ATTRIBUTE:
-                ability_answer = random.choice(list(all_abilities.values()))
-                attribute = random.choice(list(ability_answer.keys()))
-                possible_answers = abilities.get_abilities_with_attribute(all_abilities, attribute)
-            else:
-                attribute = attributes.get_corresponding_attribute(question_type)
-                possible_answers = abilities.get_abilities_with_attribute(all_abilities, attribute)
-                ability_answer = random.choice(possible_answers)
-        elif is_hero_question(question_type):
-            attribute = heroes.get_corresponding_attribute(question_type)
-            possible_answers = [hero for hero in all_heroes.values()]
-            if question_type == QuestionType.HERO_PROJECTILE_SPEED:
-                possible_answers = [hero for hero in all_heroes.values() if
-                                    hero["AttackCapabilities"][0] == "DOTA_UNIT_CAP_RANGED_ATTACK"]
+
+def ask_a_single_question(all_abilities, all_heroes, all_items):
+    question_category = random.choice(list(QuestionCategory.__members__.values()))
+
+    if question_category == QuestionCategory.ABILITY:
+        ability_answer = random.choice(list(all_abilities.values()))
+        attribute = abilities.get_random_attribute_from_ability_valid_for_question(ability_answer)
+        possible_answers = abilities.get_abilities_with_attribute(all_abilities, attribute)
+        if ability_answer not in possible_answers:
+            print("Skipping " + ability_answer["name"] + " for " + attribute)
+            return
+    elif question_category == QuestionCategory.HERO:
+        heroes_as_list = list(all_heroes.values())
+        ability_answer = random.choice(heroes_as_list)
+        attribute = heroes.get_random_attribute_from_hero_valid_for_question(ability_answer)
+        possible_answers = heroes_as_list
+    elif question_category == QuestionCategory.ITEM:
+        items_as_list = list(all_items.values())
+        ability_answer = random.choice(items_as_list)
+        attribute = items.get_random_attribute_from_item_valid_for_question(ability_answer)
+        possible_answers = items.get_items_with_attribute(all_items, attribute)
+        if ability_answer not in possible_answers:
+            print("Skipping " + ability_answer["name"] + " for " + attribute)
+            return
+
+    wrong_answers = answers_generator.generate_wrong_answers(possible_answers, attribute, ability_answer)
+    all_answers = wrong_answers.copy()
+    correct_index = random.randint(0, 3)
+    all_answers.insert(correct_index, ability_answer[attribute])
+
+    print("Question about : " + attribute)
+    print("ability is : " + ability_answer["name"])
+
+    for index, answer in enumerate(all_answers):
+        print("\t" + str(index + 1) + ") " + " ".join([str(value) for value in answer]))
+
+    user_answer = -1
+    while user_answer != correct_index:
+        user_answer = int(input("Your answer : ")) - 1
+        if user_answer != correct_index:
+            print("Wrong!")
+    print("\n\nCorrect! " + attribute + " for " + ability_answer["name"] + " is " +
+          " ".join([str(round(value, 2)) for value in ability_answer[attribute]]))
+
+    print_stats_if_appropriate(possible_answers, attribute, ability_answer[attribute])
+
+    print("\n\n")
+    time.sleep(1)
+
+
+def ask_a_single_question_old(all_abilities, all_heroes, all_items):
+    question_type = random.choice(list(QuestionType.__members__.values()))
+
+    if is_ability_question(question_type):
+        if question_type == QuestionType.ABILITY_RANDOM_ATTRIBUTE:
+            ability_answer = random.choice(list(all_abilities.values()))
+            attribute = random.choice(list(ability_answer.keys()))
+            possible_answers = abilities.get_abilities_with_attribute(all_abilities, attribute)
+        else:
+            attribute = attributes.get_corresponding_attribute(question_type)
+            possible_answers = abilities.get_abilities_with_attribute(all_abilities, attribute)
             ability_answer = random.choice(possible_answers)
-        elif is_item_question(question_type):
-            attribute = items.get_corresponding_attribute(question_type, all_items)
-            possible_answers = items.get_items_with_attribute(all_items, attribute)
-            ability_answer = random.choice(possible_answers)
+    elif is_hero_question(question_type):
+        attribute = heroes.get_corresponding_attribute(question_type)
+        possible_answers = [hero for hero in all_heroes.values()]
+        if question_type == QuestionType.HERO_PROJECTILE_SPEED:
+            possible_answers = [hero for hero in all_heroes.values() if
+                                hero["AttackCapabilities"][0] == "DOTA_UNIT_CAP_RANGED_ATTACK"]
+        ability_answer = random.choice(possible_answers)
+    elif is_item_question(question_type):
+        attribute = items.get_corresponding_attribute(question_type, all_items)
+        possible_answers = items.get_items_with_attribute(all_items, attribute)
+        ability_answer = random.choice(possible_answers)
 
-        wrong_answers = answers_generator.generate_wrong_answers(possible_answers, attribute, ability_answer)
-        all_answers = wrong_answers.copy()
-        correct_index = random.randint(0, 3)
-        all_answers.insert(correct_index, ability_answer[attribute])
+    wrong_answers = answers_generator.generate_wrong_answers(possible_answers, attribute, ability_answer)
+    all_answers = wrong_answers.copy()
+    correct_index = random.randint(0, 3)
+    all_answers.insert(correct_index, ability_answer[attribute])
 
-        print("Question about : " + attribute)
-        print("ability is : " + ability_answer["name"])
+    print("Question about : " + attribute)
+    print("ability is : " + ability_answer["name"])
 
-        for index, answer in enumerate(all_answers):
-            print("\t" + str(index + 1) + ") " + " ".join([str(value) for value in answer]))
+    for index, answer in enumerate(all_answers):
+        print("\t" + str(index + 1) + ") " + " ".join([str(value) for value in answer]))
 
-        user_answer = -1
-        while user_answer != correct_index:
-            user_answer = int(input("Your answer : ")) - 1
-            if user_answer != correct_index:
-                print("Wrong!")
-        print("\n\nCorrect! " + attribute + " for " + ability_answer["name"] + " is " +
-              " ".join([str(round(value, 2)) for value in ability_answer[attribute]]))
+    user_answer = -1
+    while user_answer != correct_index:
+        user_answer = int(input("Your answer : ")) - 1
+        if user_answer != correct_index:
+            print("Wrong!")
+    print("\n\nCorrect! " + attribute + " for " + ability_answer["name"] + " is " +
+          " ".join([str(round(value, 2)) for value in ability_answer[attribute]]))
 
-        print_stats_if_appropriate(possible_answers, attribute, ability_answer[attribute])
+    print_stats_if_appropriate(possible_answers, attribute, ability_answer[attribute])
 
-        print("\n\n")
-        time.sleep(1)
+    print("\n\n")
+    time.sleep(1)
 
 
 def test_all_questions(all_abilities, all_heroes, all_items):
@@ -154,6 +221,12 @@ def get_ability_name_list(all_heroes):
         for ability_name in all_heroes[hero_name]["Abilities"]:
             ability_list.append(ability_name)
     return ability_list
+
+
+class QuestionCategory(Enum):
+    HERO = 1,
+    ABILITY = 2,
+    ITEM = 3
 
 
 if __name__ == '__main__':

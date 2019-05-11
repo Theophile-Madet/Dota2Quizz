@@ -1,4 +1,5 @@
 from question_types import QuestionType
+import random
 
 
 def attribute_allows_negative_upgrade(attribute):

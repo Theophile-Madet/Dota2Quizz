@@ -2,30 +2,46 @@ import vpk
 import theo_utils
 import json
 import random
+import os.path
+import file_paths
 from question_types import QuestionType
 
 
 def get_and_save_all_items():
-    path = theo_utils.get_dota_folder_base_path() + 'pak01_dir.vpk'
-    pak = vpk.open(path)
-    items_file = pak.get_file('scripts/npc/items.txt')
+    create_items_custom_file_if_necessary()
+    return theo_utils.load_json_in_file(file_paths.items_custom_format())
+
+
+def create_items_custom_file_if_necessary():
+    if not os.path.isfile(file_paths.items_custom_format()):
+        create_items_custom_file()
+        return
+
+    valve_file_path = file_paths.vpk_source_file()
+    valve_file_modification_date = os.path.getmtime(valve_file_path)
+    custom_file_modification_date = os.path.getmtime(file_paths.items_custom_format())
+    if valve_file_modification_date > custom_file_modification_date:
+        create_items_custom_file()
+
+
+def create_items_custom_file():
+    pak = vpk.open(file_paths.vpk_source_file())
+    items_file = pak.get_file(file_paths.items_source_file_inside_vpk())
 
     valve_string = items_file.read().decode('utf-8')
     json_string = theo_utils.valve_string_to_json_string(valve_string)
 
     items_valve = json.loads(json_string)['DOTAAbilities']
     json_string = json.dumps(items_valve, indent=4)
-    destination_file = open('items_valve_format.json', 'w+')
+    destination_file = open(file_paths.items_valve_format(), 'w+')
     destination_file.write(json_string)
     destination_file.close()
 
     items_custom = valve_format_to_custom_format(items_valve)
     json_string = json.dumps(items_custom, indent=4)
-    destination_file = open('items_custom_format.json', 'w+')
+    destination_file = open(file_paths.items_custom_format(), 'w+')
     destination_file.write(json_string)
     destination_file.close()
-
-    return items_custom
 
 
 def valve_format_to_custom_format(items_valve):
@@ -145,3 +161,15 @@ def get_random_passive_bonus(all_items):
             if attribute.startswith("Passive") and attribute not in all_passive_bonuses:
                 all_passive_bonuses.append(attribute)
     return random.choice(all_passive_bonuses)
+
+
+def get_random_attribute_from_item_valid_for_question(item):
+    exclude_list = ["", "name", "SideShop", "ItemRequirements", "ItemResult"]
+    attributes = list(item.keys())
+    if all([attribute in exclude_list for attribute in attributes]):
+        raise Exception("Invalid ability : no valid attribute " + item["name"])
+
+    attribute = ""
+    while attribute in exclude_list:
+        attribute = random.choice(attributes)
+    return attribute
